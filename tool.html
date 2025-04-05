@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leducper Tool - Phân Tích Tài Xỉu</title>
+    <style>
+        :root {
+            --primary: #00ff00;
+            --secondary: #003300;
+            --dark: #000000;
+            --darker: #001100;
+            --glow: 0 0 10px #00ff00;
+            --red: #ff3333;
+            --blue: #3399ff;
+            --yellow: #ffff00;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--primary);
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 80, 0, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 0, 0.05) 0%, transparent 30%);
+        }
+
+        .header {
+            background-color: rgba(0, 20, 0, 0.7);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--primary);
+            box-shadow: var(--glow);
+            position: relative;
+        }
+
+        .header::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: headerGlow 3s linear infinite;
+        }
+
+        @keyframes headerGlow {
+            0% { background-position: -100% 0; }
+            100% { background-position: 100% 0; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 2px;
+            text-shadow: var(--glow);
+        }
+
+        .input-section {
+            background-color: rgba(0, 30, 0, 0.7);
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-family: 'Courier New', monospace;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: var(--glow);
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: var(--secondary);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border-radius: 3px;
+            transition: all 0.3s;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--primary);
+            color: var(--dark);
+            box-shadow: var(--glow);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            background-color: rgba(0, 20, 0, 0.7);
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            padding: 20px;
+            display: none;
+        }
+
+        .result-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            text-shadow: var(--glow);
+            border-bottom: 1px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .result-content {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .method {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .method-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--yellow);
+        }
+
+        .final-prediction {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 50, 0, 0.5);
+            border: 1px solid var(--primary);
+            border-radius: 3px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .tai {
+            color: var(--blue);
+            text-shadow: 0 0 5px var(--blue);
+        }
+
+        .xiu {
+            color: var(--red);
+            text-shadow: 0 0 5px var(--red);
+        }
+
+        .dice-result {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--secondary);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .logout-btn:hover {
+            background-color: var(--primary);
+            color: var(--dark);
+            box-shadow: var(--glow);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        if (!localStorage.getItem('authenticated') || localStorage.getItem('authenticated') !== 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <div class="header">
+        <div class="container">
+            <h1>PHÂN TÍCH TÀI XỈU CHÍNH XÁC</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="input-section">
+            <h2>NHẬP THÔNG SỐ</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="dice1">Mặt xúc xắc 1 (1-6)</label>
+                    <input type="number" id="dice1" min="1" max="6">
+                </div>
+                <div class="input-group">
+                    <label for="dice2">Mặt xúc xắc 2 (1-6)</label>
+                    <input type="number" id="dice2" min="1" max="6">
+                </div>
+                <div class="input-group">
+                    <label for="dice3">Mặt xúc xắc 3 (1-6)</label>
+                    <input type="number" id="dice3" min="1" max="6">
+                </div>
+                <div class="input-group">
+                    <label for="diem-tay">Điểm tay (3-18)</label>
+                    <input type="number" id="diem-tay" min="3" max="18">
+                </div>
+                <div class="input-group">
+                    <label for="diem-phien">Điểm phiên (0-9)</label>
+                    <input type="number" id="diem-phien" min="0" max="9">
+                </div>
+            </div>
+            <button id="analyze-btn">PHÂN TÍCH</button>
+        </div>
+
+        <div class="result-section" id="result-section">
+            <div class="result-title">KẾT QUẢ PHÂN TÍCH</div>
+            <div class="result-content" id="result-content"></div>
+        </div>
+    </div>
+
+    <button class="logout-btn" id="logout-btn">ĐĂNG XUẤT</button>
+
+    <script>
+        // Hàm random xúc xắc (1-6)
+        function rollDice() {
+            return Math.floor(Math.random() * 6) + 1;
+        }
+
+        // Hàm xác định Tài/Xỉu
+        function determineTaiXiu(total) {
+            return total >= 11 ? {result: "Tài", color: "blue"} : {result: "Xỉu", color: "red"};
+        }
+
+        document.getElementById('analyze-btn').addEventListener('click', function() {
+            // Lấy giá trị nhập vào
+            const dice1 = parseInt(document.getElementById('dice1').value);
+            const dice2 = parseInt(document.getElementById('dice2').value);
+            const dice3 = parseInt(document.getElementById('dice3').value);
+            const diemTay = parseInt(document.getElementById('diem-tay').value);
+            const diemPhien = parseInt(document.getElementById('diem-phien').value);
+            
+            // Kiểm tra hợp lệ
+            if ([dice1, dice2, dice3].some(d => d < 1 || d > 6 || isNaN(d))) {
+                alert("Vui lòng nhập mặt xúc xắc từ 1 đến 6");
+                return;
+            }
+            
+            if (diemTay < 3 || diemTay > 18 || isNaN(diemTay)) {
+                alert("Điểm tay phải từ 3 đến 18");
+                return;
+            }
+            
+            if (diemPhien < 0 || diemPhien > 9 || isNaN(diemPhien)) {
+                alert("Điểm phiên phải từ 0 đến 9");
+                return;
+            }
+            
+            // Hiển thị kết quả
+            const resultSection = document.getElementById('result-section');
+            const resultContent = document.getElementById('result-content');
+            
+            resultSection.style.display = 'block';
+            resultContent.innerHTML = '<span class="typing">Đang phân tích dữ liệu...</span>';
+            
+            // Tính toán sau 1 giây (hiệu ứng)
+            setTimeout(() => {
+                // Kết quả xúc xắc hiện tại
+                const currentTotal = dice1 + dice2 + dice3;
+                const currentResult = determineTaiXiu(currentTotal);
+                
+                // Phương pháp 1: Random 19 lần
+                let taiCount = 0;
+                let xiuCount = 0;
+                let randomDetails = [];
+                
+                for (let i = 0; i < 19; i++) {
+                    const r1 = rollDice();
+                    const r2 = rollDice();
+                    const r3 = rollDice();
+                    const total = r1 + r2 + r3;
+                    const result = determineTaiXiu(total);
+                    
+                    if (result.result === "Tài") taiCount++;
+                    else xiuCount++;
+                    
+                    randomDetails.push(`${i+1}. ${r1} + ${r2} + ${r3} = ${total} → <span style="color: ${result.color}">${result.result}</span>`);
+                }
+                
+                const randomFinal = taiCount > xiuCount ? "Tài" : "Xỉu";
+                
+                // Phương pháp 2: Công thức điểm tay + điểm phiên
+                const sum = diemTay + diemPhien;
+                const lastDigit = sum % 10;
+                const formulaResult = lastDigit % 2 === 1 ? "Tài" : "Xỉu";
+                
+                // So sánh kết quả
+                let finalPrediction;
+                if (randomFinal === formulaResult) {
+                    finalPrediction = randomFinal;
+                } else {
+                    // Ưu tiên phương pháp có tỉ lệ cao hơn
+                    const randomRate = taiCount / (taiCount + xiuCount);
+                    if ((randomFinal === "Tài" && randomRate >= 0.5) || (randomFinal === "Xỉu" && randomRate < 0.5)) {
+                        finalPrediction = randomFinal;
+                    } else {
+                        finalPrediction = formulaResult;
+                    }
+                }
+                
+                // Hiển thị kết quả
+                let resultText = `
+┌──────────────────────────────────┐
+│  THÔNG TIN ĐẦU VÀO              │
+├──────────────────────────────────┤
+│  Xúc xắc hiện tại: ${dice1} + ${dice2} + ${dice3} = ${currentTotal} → <span style="color: ${currentResult.color}">${currentResult.result}</span>
+│  Điểm tay: ${diemTay} | Điểm phiên: ${diemPhien} (Tổng: ${sum}) │
+└──────────────────────────────────┘
+
+════════ PHƯƠNG PHÁP RANDOM 19 LẦN ════════
+${randomDetails.join('\n')}
+
+• Tổng kết: Tài ${taiCount} lần | Xỉu ${xiuCount} lần
+• Dự đoán: <span style="color: ${randomFinal === 'Tài' ? 'var(--blue)' : 'var(--red)'}">${randomFinal}</span>
+
+════════ PHƯƠNG PHÁP CÔNG THỨC ═══════
+• Tổng điểm: ${sum} → Số cuối: ${lastDigit} (${lastDigit % 2 === 1 ? "Lẻ" : "Chẵn"})
+• Dự đoán: <span style="color: ${formulaResult === 'Tài' ? 'var(--blue)' : 'var(--red)'}">${formulaResult}</span>
+
+════════ PHÂN TÍCH KẾT QUẢ ════════
+`;
+                
+                if (randomFinal === formulaResult) {
+                    resultText += `Hai phương pháp ĐỒNG THUẬN → Độ chính xác cao\n`;
+                } else {
+                    resultText += `Hai phương pháp KHÁC BIỆT → Phân tích tỉ lệ\n`;
+                }
+                
+                resultContent.innerHTML = resultText;
+                
+                // Thêm dự đoán cuối cùng nổi bật
+                const finalDiv = document.createElement('div');
+                finalDiv.className = `final-prediction ${finalPrediction === 'Tài' ? 'tai' : 'xiu'}`;
+                finalDiv.innerHTML = `DỰ ĐOÁN CUỐI CÙNG: ${finalPrediction}`;
+                resultContent.appendChild(finalDiv);
+                
+                // Thêm khuyến nghị
+                const suggestionDiv = document.createElement('div');
+                suggestionDiv.style.marginTop = '15px';
+                suggestionDiv.style.padding = '10px';
+                suggestionDiv.style.backgroundColor = 'rgba(0, 30, 0, 0.7)';
+                suggestionDiv.style.border = '1px solid var(--primary)';
+                suggestionDiv.style.borderRadius = '3px';
+                
+                if (finalPrediction === currentResult.result) {
+                    suggestionDiv.innerHTML = `<span style="color: var(--yellow)">💡 KHUYẾN NGHỊ: NÊN THEO DỰ ĐOÁN (Trùng với kết quả hiện tại)</span>`;
+                } else {
+                    suggestionDiv.innerHTML = `<span style="color: var(--yellow)">💡 KHUYẾN NGHỊ: CÂN NHẮC (Khác với kết quả hiện tại)</span>`;
+                }
+                
+                resultContent.appendChild(suggestionDiv);
+            }, 1000);
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.removeItem('authenticated');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
