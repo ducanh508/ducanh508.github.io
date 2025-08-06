@@ -1,1 +1,1813 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Tài Xỉu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00ff9d;
+            --secondary-color: #007bff;
+            --accent-color: #ff00aa;
+            --dark-bg: #121212;
+            --darker-bg: #0a0a0a;
+            --text-color: #ffffff;
+            --panel-bg: rgba(30, 30, 30, 0.85);
+            --glass-effect: rgba(255, 255, 255, 0.05);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1639762681057-408e52192e55?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center;
+            background-size: cover;
+            z-index: -2;
+            filter: blur(8px) brightness(0.6);
+        }
+        
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 50, 50, 0.8) 100%);
+            z-index: -1;
+        }
+        
+        /* Disable right click and dev tools */
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Audio player */
+        .audio-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--panel-bg);
+            padding: 10px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .audio-control {
+            background: var(--primary-color);
+            color: #000;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .audio-control:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+        
+        /* Login container */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .login-box {
+            background: var(--panel-bg);
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-effect);
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .login-logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            background: url('https://media.istockphoto.com/id/1445426863/vector/chat-bot-vector-logo-design-concept.jpg?s=612x612&w=0&k=20&c=XDdfzS4lNW9yxQ0BQGZq9KMLL4bJ8ywXlYdAhBSuoCA=') no-repeat center center;
+            background-size: contain;
+            filter: drop-shadow(0 0 10px var(--primary-color));
+        }
+        
+        .login-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: var(--darker-bg);
+            border: 1px solid var(--glass-effect);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .login-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+            outline: none;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        .login-btn:hover {
+            background: #00e68a;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.3);
+        }
+        
+        .login-message {
+            color: #ff5555;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        /* Mission container */
+        .mission-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .mission-box {
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-effect);
+            text-align: center;
+        }
+        
+        .mission-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .mission-text {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .mission-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--primary-color);
+            color: #000;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+        
+        .mission-btn:hover {
+            background: #00e68a;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.3);
+        }
+        
+        .mission-check {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .mission-check:hover {
+            background: #0069d9;
+        }
+        
+        .mission-timer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border-left: 5px solid var(--primary-color);
+            max-width: 90%;
+            width: 500px;
+            z-index: 1000;
+            display: none;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .notification-title {
+            font-size: 18px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .notification-content {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .notification-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .notification-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Main container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background: url('https://media.istockphoto.com/id/1445426863/vector/chat-bot-vector-logo-design-concept.jpg?s=612x612&w=0&k=20&c=XDdfzS4lNW9yxQ0BQGZq9KMLL4bJ8ywXlYdAhBSuoCA=') no-repeat center center;
+            background-size: contain;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .logout-btn {
+            background-color: #ff5555;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #ff3333;
+            transform: translateY(-2px);
+        }
+        
+        .tool-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tool-btn {
+            padding: 12px 25px;
+            background-color: var(--darker-bg);
+            border: 1px solid var(--primary-color);
+            color: var(--text-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .tool-btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        .tool-btn.active {
+            background-color: var(--primary-color);
+            color: #000;
+        }
+        
+        .tool-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.3);
+        }
+        
+        .tool-container {
+            background-color: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+        
+        .tool-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .tool-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
+            position: relative;
+        }
+        
+        .tool-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), transparent);
+            margin: 10px auto 0;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--darker-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input[type="number"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+            outline: none;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: block;
+            margin: 0 auto;
+            width: 200px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn:hover {
+            background-color: #00e68a;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.3);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--darker-bg);
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-color);
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .result-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-title i {
+            font-size: 16px;
+        }
+        
+        .prediction {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .tai {
+            color: #4CAF50;
+        }
+        
+        .xiu {
+            color: #F44336;
+        }
+        
+        .dice-probability {
+            margin-top: 15px;
+        }
+        
+        .probability-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .probability-bar {
+            height: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            border-radius: 5px;
+            transition: width 0.5s ease-out;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .action-btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        .check-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .history-btn {
+            background-color: #673AB7;
+            color: white;
+        }
+        
+        .new-game-btn {
+            background-color: #FF9800;
+            color: black;
+        }
+        
+        .back-btn {
+            background-color: #9E9E9E;
+            color: black;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .action-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .history-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .history-content {
+            background-color: var(--darker-bg);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-effect);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .history-title {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        
+        .close-history {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .close-history:hover {
+            transform: rotate(90deg);
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th, .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .history-table th {
+            background-color: rgba(0, 255, 157, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .history-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .correct {
+            color: #4CAF50;
+        }
+        
+        .incorrect {
+            color: #F44336;
+        }
+        
+        /* Tool V2 styles */
+        .bot-container {
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--panel-bg);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .bot-header {
+            background-color: var(--darker-bg);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .bot-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: url('https://media.istockphoto.com/id/1445426863/vector/chat-bot-vector-logo-design-concept.jpg?s=612x612&w=0&k=20&c=XDdfzS4lNW9yxQ0BQGZq9KMLL4bJ8ywXlYdAhBSuoCA=') no-repeat center center;
+            background-size: cover;
+            margin-right: 15px;
+        }
+        
+        .bot-name {
+            font-weight: bold;
+        }
+        
+        .bot-status {
+            margin-left: auto;
+            font-size: 12px;
+            color: #00ff9d;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #00ff9d;
+            animation: pulse 2s infinite;
+        }
+        
+        .bot-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) transparent;
+        }
+        
+        .bot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .bot-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .bot-messages::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+        
+        .bot-message {
+            background-color: rgba(0, 255, 157, 0.1);
+            padding: 10px 15px;
+            border-radius: 0 15px 15px 15px;
+            max-width: 80%;
+            position: relative;
+            animation: messageIn 0.3s ease-out;
+        }
+        
+        .bot-message::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 0;
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            border-right-color: rgba(0, 255, 157, 0.1);
+            border-left: 0;
+            margin-top: 0;
+            margin-left: -8px;
+        }
+        
+        .user-message {
+            margin-left: auto;
+            background-color: rgba(0, 123, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 15px 0 15px 15px;
+            max-width: 80%;
+            position: relative;
+            animation: messageIn 0.3s ease-out;
+        }
+        
+        .user-message::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 0;
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            border-left-color: rgba(0, 123, 255, 0.1);
+            border-right: 0;
+            margin-top: 0;
+            margin-right: -8px;
+        }
+        
+        .message-input-container {
+            display: flex;
+            padding: 15px;
+            background-color: var(--darker-bg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px;
+            background-color: var(--dark-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        
+        .message-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+            outline: none;
+        }
+        
+        .send-btn {
+            background-color: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .send-btn:hover {
+            background-color: #00e68a;
+        }
+        
+        /* Tool V3 styles */
+        .game-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .game-option {
+            padding: 10px 20px;
+            background-color: var(--darker-bg);
+            border: 1px solid var(--glass-effect);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .game-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        .game-option.active {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 255, 157, 0.1);
+        }
+        
+        .game-frame {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 10px;
+            margin-top: 20px;
+            background: #000;
+            display: none;
+        }
+        
+        .game-frame.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translate(-50%, -30px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .tool-container {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+            
+            .game-selector {
+                flex-direction: column;
+            }
+            
+            .game-option {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .game-frame {
+                height: 400px;
+            }
+            
+            .login-box {
+                padding: 30px 20px;
+            }
+            
+            .mission-box {
+                padding: 20px 15px;
+            }
+            
+            .mission-btn {
+                display: block;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Audio Player -->
+    <div class="audio-player">
+        <audio id="bg-music" loop>
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+        <button class="audio-control" id="play-btn"><i class="fas fa-play"></i></button>
+        <button class="audio-control" id="mute-btn"><i class="fas fa-volume-up"></i></button>
+    </div>
 
+    <!-- Login Container -->
+    <div class="login-container" id="login-container">
+        <div class="login-box">
+            <div class="login-logo"></div>
+            <h2 class="login-title">ĐĂNG NHẬP CÔNG CỤ</h2>
+            <input type="text" class="login-input" id="login-key" placeholder="Nhập mã truy cập">
+            <button class="login-btn" id="login-btn">ĐĂNG NHẬP</button>
+            <p class="login-message" id="login-message"></p>
+        </div>
+    </div>
+
+    <!-- Mission Container -->
+    <div class="mission-container" id="mission-container">
+        <div class="mission-box">
+            <h2 class="mission-title">NHIỆM VỤ CẦN HOÀN THÀNH</h2>
+            <p class="mission-text">
+                Để sử dụng công cụ, vui lòng tham gia nhóm Telegram của chúng tôi để nhận thông báo cập nhật và hỗ trợ.
+            </p>
+            <a href="https://t.me/keocau68gamebai_sunwin" class="mission-btn" target="_blank">THAM GIA NHÓM</a>
+            <button class="mission-btn mission-check" id="check-mission-btn">KIỂM TRA</button>
+            <p class="mission-timer" id="mission-timer"></p>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <div class="notification-header">
+            <h3 class="notification-title">THÔNG BÁO</h3>
+            <button class="notification-close" id="close-notification">&times;</button>
+        </div>
+        <div class="notification-content">
+            <p>ADMIN TOOL: @bevis1312</p>
+            <p>CỔNG GAME HỖ TRỢ: ALL CỔNG GAME</p>
+            <p>AE CÓ THỂ GIA NHẬP NHÓM TELE KÉO TÀI XỈU: <a href="https://t.me/keocau68gamebai_sunwin" class="notification-link" target="_blank">https://t.me/keocau68gamebai_sunwin</a></p>
+            <p>NOTE: WEB TOOL HOÀN TOÀN LÀ FREE, CÁC CÔNG THỨC MÌNH LÀM HOÀN TOÀN LÀ XÁC SUẤT CHÍNH XÁC 60-70%, KHÔNG PHẢI LÀ RANDOM, MÌNH KHÔNG LẤY TIỀN HAY THỜI GIAN CÔNG SỨC CỦA AE, NẾU AE THẤY TOOL DÙNG HAY, OK THÌ CÓ THỂ CHIA SẺ TỚI BẠN BÈ ĐỂ CÙNG BIẾT, VÀ AE CÓ THẮC MẮC GÌ VUI LÒNG LIÊN HỆ TELE: @BEVIS1312 NHÉ, VUI LÒNG KHÔNG DÙNG TOOL CHO CÁC HOẠT ĐỘNG BUÔN BÁN KIẾM LỜI CHO BẢN THÂN, CẢM ƠN AE ĐÃ ỦNG HỘ.</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="main-container">
+        <div class="header">
+            <a href="#" class="logo">
+                <div class="logo-icon"></div>
+                <span>TAI XIU TOOL</span>
+            </a>
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <button class="logout-btn" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </div>
+        </div>
+        
+        <div class="tool-selector">
+            <button class="tool-btn active" data-tool="toolv1">Tool V1</button>
+            <button class="tool-btn" data-tool="toolv2">Tool V2</button>
+            <button class="tool-btn" data-tool="toolv3">Tool V3</button>
+        </div>
+        
+        <!-- Tool V1 Container -->
+        <div class="tool-container active" id="toolv1">
+            <h2 class="tool-title"><i class="fas fa-dice"></i> CÔNG CỤ PHÂN TÍCH TÀI XỈU</h2>
+            
+            <div class="input-group">
+                <label for="dice1">Xí ngầu 1 (1-6):</label>
+                <input type="number" id="dice1" min="1" max="6" placeholder="Nhập số xí ngầu 1">
+            </div>
+            
+            <div class="input-group">
+                <label for="dice2">Xí ngầu 2 (1-6):</label>
+                <input type="number" id="dice2" min="1" max="6" placeholder="Nhập số xí ngầu 2">
+            </div>
+            
+            <div class="input-group">
+                <label for="dice3">Xí ngầu 3 (1-6):</label>
+                <input type="number" id="dice3" min="1" max="6" placeholder="Nhập số xí ngầu 3">
+            </div>
+            
+            <button class="submit-btn" id="analyze-btn"><i class="fas fa-chart-line"></i> PHÂN TÍCH KẾT QUẢ</button>
+            
+            <div class="result-container" id="result-v1">
+                <h3 class="result-title"><i class="fas fa-clipboard-list"></i> KẾT QUẢ PHÂN TÍCH</h3>
+                <p class="prediction" id="prediction-text"></p>
+                <p id="position-prediction"></p>
+                <p id="win-rate"></p>
+                
+                <div class="dice-probability">
+                    <h4><i class="fas fa-chart-pie"></i> Dự đoán vị cho ván tiếp theo:</h4>
+                    <p id="next-dice-prediction"></p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn check-btn" id="check-result-btn"><i class="fas fa-check"></i> Check Kết Quả</button>
+                    <button class="action-btn history-btn" id="history-btn"><i class="fas fa-history"></i> Lịch Sử</button>
+                    <button class="action-btn new-game-btn" id="new-game-btn"><i class="fas fa-redo"></i> Ván Mới</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tool V2 Container -->
+        <div class="tool-container" id="toolv2">
+            <h2 class="tool-title"><i class="fas fa-robot"></i> BOT TÀI XỈU TỰ ĐỘNG</h2>
+            
+            <div class="bot-container">
+                <div class="bot-header">
+                    <div class="bot-avatar"></div>
+                    <div class="bot-name">TaiXiu Analyzer</div>
+                    <div class="bot-status">
+                        <div class="status-dot"></div>
+                        <span>Đang hoạt động</span>
+                    </div>
+                </div>
+                
+                <div class="bot-messages" id="bot-messages">
+                    <div class="message">
+                        <div class="bot-message">Xin chào! Tôi là bot phân tích Tài Xỉu. Vui lòng gửi điểm phiên hiện tại (ví dụ: #828923) để tôi bắt đầu phân tích.</div>
+                    </div>
+                </div>
+                
+                <div class="message-input-container">
+                    <input type="text" class="message-input" id="user-message" placeholder="Nhập tin nhắn...">
+                    <button class="send-btn" id="send-btn"><i class="fas fa-paper-plane"></i> Gửi</button>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn history-btn" id="bot-history-btn"><i class="fas fa-history"></i> Lịch Sử Bot</button>
+            </div>
+        </div>
+        
+        <!-- Tool V3 Container -->
+        <div class="tool-container" id="toolv3">
+            <h2 class="tool-title"><i class="fas fa-gamepad"></i> GAME TÀI XỈU TRỰC TUYẾN</h2>
+            
+            <div class="game-selector">
+                <div class="game-option active" data-game="sunwin">Sun Win</div>
+                <div class="game-option" data-game="hitclub">Hit Club</div>
+                <div class="game-option" data-game="68gb">68 Game Bài</div>
+            </div>
+            
+            <iframe src="" class="game-frame" id="game-frame"></iframe>
+        </div>
+        
+        <div class="footer">
+            <p>Công cụ phân tích Tài Xỉu | Bản quyền &copy; 2023 bởi @bevis1312</p>
+        </div>
+    </div>
+    
+    <!-- History Modal -->
+    <div class="history-modal" id="history-modal">
+        <div class="history-content">
+            <div class="history-header">
+                <h3 class="history-title"><i class="fas fa-history"></i> LỊCH SỬ DỰ ĐOÁN</h3>
+                <button class="close-history" id="close-history">&times;</button>
+            </div>
+            
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Ván</th>
+                        <th>Dự đoán</th>
+                        <th>Kết quả</th>
+                        <th>Trạng thái</th>
+                        <th>Thời gian</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body">
+                    <!-- History data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Bot History Modal -->
+    <div class="history-modal" id="bot-history-modal">
+        <div class="history-content">
+            <div class="history-header">
+                <h3 class="history-title"><i class="fas fa-robot"></i> LỊCH SỬ BOT</h3>
+                <button class="close-history" id="close-bot-history">&times;</button>
+            </div>
+            
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Điểm phiên</th>
+                        <th>Dự đoán</th>
+                        <th>Kết quả</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody id="bot-history-table-body">
+                    <!-- Bot history data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // Disable right click and dev tools
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.shiftKey && e.key === 'J') || (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+            }
+        });
+        
+        // Audio control
+        const bgMusic = document.getElementById('bg-music');
+        const playBtn = document.getElementById('play-btn');
+        const muteBtn = document.getElementById('mute-btn');
+        
+        playBtn.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                bgMusic.pause();
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+        
+        muteBtn.addEventListener('click', () => {
+            if (bgMusic.muted) {
+                bgMusic.muted = false;
+                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            } else {
+                bgMusic.muted = true;
+                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            }
+        });
+        
+        // Login functionality
+        const loginContainer = document.getElementById('login-container');
+        const loginBtn = document.getElementById('login-btn');
+        const loginKey = document.getElementById('login-key');
+        const loginMessage = document.getElementById('login-message');
+        const missionContainer = document.getElementById('mission-container');
+        const checkMissionBtn = document.getElementById('check-mission-btn');
+        const missionTimer = document.getElementById('mission-timer');
+        const mainContainer = document.getElementById('main-container');
+        const userAvatar = document.getElementById('user-avatar');
+        const logoutBtn = document.getElementById('logout-btn');
+        const notification = document.getElementById('notification');
+        const closeNotification = document.getElementById('close-notification');
+        
+        // Valid keys
+        const validKeys = ['freekey', 'bevis'];
+        
+        loginBtn.addEventListener('click', () => {
+            const key = loginKey.value.trim().toLowerCase();
+            
+            if (key === '') {
+                loginMessage.textContent = 'Vui lòng nhập mã truy cập';
+                return;
+            }
+            
+            if (validKeys.includes(key)) {
+                // Show mission for non-admin keys
+                if (key !== 'bevis') {
+                    missionContainer.style.display = 'flex';
+                } else {
+                    // Admin can skip mission
+                    loginSuccess('Admin');
+                }
+            } else {
+                loginMessage.textContent = 'Mã truy cập không hợp lệ';
+            }
+        });
+        
+        checkMissionBtn.addEventListener('click', () => {
+            // Simulate mission check (in real app, you would check Telegram API)
+            missionTimer.textContent = 'Đang kiểm tra...';
+            
+            setTimeout(() => {
+                // Assume mission is always completed for demo
+                missionCompleted();
+            }, 2000);
+        });
+        
+        function missionCompleted() {
+            missionContainer.style.display = 'none';
+            loginSuccess('Người dùng');
+        }
+        
+        function loginSuccess(username) {
+            loginContainer.style.display = 'none';
+            mainContainer.style.opacity = '1';
+            userAvatar.textContent = username[0];
+            
+            // Show notification
+            setTimeout(() => {
+                notification.style.display = 'block';
+                
+                // Hide notification after 1 hour
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3600000);
+            }, 1000);
+        }
+        
+        closeNotification.addEventListener('click', () => {
+            notification.style.display = 'none';
+        });
+        
+        logoutBtn.addEventListener('click', () => {
+            mainContainer.style.opacity = '0';
+            setTimeout(() => {
+                loginContainer.style.display = 'flex';
+                loginKey.value = '';
+                loginMessage.textContent = '';
+            }, 500);
+        });
+        
+        // Tool selection
+        const toolBtns = document.querySelectorAll('.tool-btn');
+        const toolContainers = document.querySelectorAll('.tool-container');
+        
+        toolBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const toolId = btn.getAttribute('data-tool');
+                
+                toolBtns.forEach(b => b.classList.remove('active'));
+                toolContainers.forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(toolId).classList.add('active');
+                
+                // Play click sound
+                playClickSound();
+            });
+        });
+        
+        // Tool V1 functionality
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const resultV1 = document.getElementById('result-v1');
+        const predictionText = document.getElementById('prediction-text');
+        const positionPrediction = document.getElementById('position-prediction');
+        const winRate = document.getElementById('win-rate');
+        const nextDicePrediction = document.getElementById('next-dice-prediction');
+        const checkResultBtn = document.getElementById('check-result-btn');
+        const historyBtn = document.getElementById('history-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const historyModal = document.getElementById('history-modal');
+        const closeHistory = document.getElementById('close-history');
+        const historyTableBody = document.getElementById('history-table-body');
+        
+        let gameHistory = JSON.parse(localStorage.getItem('taiXiuHistory')) || [];
+        let currentPrediction = null;
+        
+        analyzeBtn.addEventListener('click', () => {
+            const dice1 = parseInt(document.getElementById('dice1').value);
+            const dice2 = parseInt(document.getElementById('dice2').value);
+            const dice3 = parseInt(document.getElementById('dice3').value);
+            
+            if (isNaN(dice1) || isNaN(dice2) || isNaN(dice3) || 
+                dice1 < 1 || dice1 > 6 || 
+                dice2 < 1 || dice2 > 6 || 
+                dice3 < 1 || dice3 > 6) {
+                alert('Vui lòng nhập số xí ngầu hợp lệ (1-6)');
+                return;
+            }
+            
+            // Calculate sum
+            const sum = dice1 + dice2 + dice3;
+            const currentIsTai = sum > 10;
+            
+            // More sophisticated prediction algorithm
+            let predictedIsTai;
+            let winProbability;
+            
+            // Analyze patterns (simplified for demo)
+            if (gameHistory.length >= 2) {
+                const lastTwo = gameHistory.slice(-2);
+                const lastTwoSame = lastTwo[0].prediction === lastTwo[1].prediction;
+                
+                // If last two were same, predict opposite (bẻ cầu)
+                if (lastTwoSame) {
+                    predictedIsTai = !(lastTwo[0].prediction === 'TÀI');
+                    winProbability = Math.floor(Math.random() * 11) + 70; // 70-80%
+                } else {
+                    // Otherwise follow the trend
+                    predictedIsTai = currentIsTai;
+                    winProbability = Math.floor(Math.random() * 21) + 50; // 50-70%
+                }
+            } else {
+                // No history, use current result
+                predictedIsTai = !currentIsTai; // Predict opposite
+                winProbability = Math.floor(Math.random() * 11) + 60; // 60-70%
+            }
+            
+            // Generate position prediction (3 unique numbers)
+            const positionNumbers = [];
+            const targetSum = predictedIsTai ? 
+                Math.floor(Math.random() * 8) + 11 : // Tài: 11-18
+                Math.floor(Math.random() * 8) + 3;   // Xỉu: 3-10
+                
+            // Generate 3 unique numbers that sum to target
+            let num1, num2, num3;
+            do {
+                num1 = predictedIsTai ? 
+                    Math.floor(Math.random() * 5) + 4 : // 4-8 for Tài
+                    Math.floor(Math.random() * 3) + 1;  // 1-3 for Xỉu
+                num2 = predictedIsTai ? 
+                    Math.floor(Math.random() * 5) + 4 : 
+                    Math.floor(Math.random() * 3) + 1;
+                num3 = targetSum - num1 - num2;
+                
+                // Ensure numbers are valid and unique
+                const validRange = predictedIsTai ? 
+                    (n) => n >= 4 && n <= 6 : 
+                    (n) => n >= 1 && n <= 3;
+                
+                if (validRange(num3) && num1 !== num2 && num1 !== num3 && num2 !== num3) {
+                    positionNumbers.push(num1, num2, num3);
+                    break;
+                }
+            } while (true);
+            
+            // Shuffle the numbers
+            positionNumbers.sort(() => Math.random() - 0.5);
+            
+            // Set prediction text
+            if (predictedIsTai) {
+                predictionText.innerHTML = `Phiên này bạn hãy chọn: <span class="tai">TÀI</span>`;
+                positionPrediction.innerHTML = `Dự đoán vị: <span class="tai">${positionNumbers.join(', ')} (Tổng: ${positionNumbers.reduce((a, b) => a + b, 0)})</span>`;
+            } else {
+                predictionText.innerHTML = `Phiên này bạn hãy chọn: <span class="xiu">XỈU</span>`;
+                positionPrediction.innerHTML = `Dự đoán vị: <span class="xiu">${positionNumbers.join(', ')} (Tổng: ${positionNumbers.reduce((a, b) => a + b, 0)})</span>`;
+            }
+            
+            winRate.textContent = `Tỉ lệ thắng: ${winProbability}%`;
+            
+            // Generate next dice prediction
+            const nextDice = [];
+            for (let i = 0; i < 3; i++) {
+                nextDice.push(predictedIsTai ? 
+                    Math.floor(Math.random() * 3) + 4 : // 4-6 for Tài
+                    Math.floor(Math.random() * 3) + 1);  // 1-3 for Xỉu
+            }
+            
+            nextDicePrediction.innerHTML = predictedIsTai ? 
+                `<span class="tai">Tài: ${nextDice.join(', ')} (Tổng: ${nextDice.reduce((a, b) => a + b, 0)})</span>` :
+                `<span class="xiu">Xỉu: ${nextDice.join(', ')} (Tổng: ${nextDice.reduce((a, b) => a + b, 0)})</span>`;
+            
+            // Store current prediction
+            currentPrediction = {
+                dice: [dice1, dice2, dice3],
+                prediction: predictedIsTai ? 'TÀI' : 'XỈU',
+                position: positionNumbers,
+                winProbability,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            // Show result
+            resultV1.style.display = 'block';
+            
+            // Play sound
+            playClickSound();
+        });
+        
+        checkResultBtn.addEventListener('click', () => {
+            if (!currentPrediction) return;
+            
+            const result = prompt('Kết quả trong game là Tài hay Xỉu? (Nhập "tai" hoặc "xiu")');
+            
+            if (result && (result.toLowerCase() === 'tai' || result.toLowerCase() === 'xiu')) {
+                const isCorrect = (result.toLowerCase() === 'tai' && currentPrediction.prediction === 'TÀI') || 
+                                 (result.toLowerCase() === 'xiu' && currentPrediction.prediction === 'XỈU');
+                
+                // Add to history
+                gameHistory.push({
+                    ...currentPrediction,
+                    actualResult: result.toUpperCase(),
+                    isCorrect
+                });
+                
+                localStorage.setItem('taiXiuHistory', JSON.stringify(gameHistory));
+                
+                alert(`Kết quả: ${result.toUpperCase()}. Dự đoán ${isCorrect ? 'ĐÚNG' : 'SAI'}`);
+                
+                // Play sound
+                playClickSound();
+            }
+        });
+        
+        historyBtn.addEventListener('click', () => {
+            renderHistory();
+            historyModal.style.display = 'flex';
+            
+            // Play sound
+            playClickSound();
+        });
+        
+        closeHistory.addEventListener('click', () => {
+            historyModal.style.display = 'none';
+            
+            // Play sound
+            playClickSound();
+        });
+        
+        newGameBtn.addEventListener('click', () => {
+            document.getElementById('dice1').value = '';
+            document.getElementById('dice2').value = '';
+            document.getElementById('dice3').value = '';
+            resultV1.style.display = 'none';
+            currentPrediction = null;
+            
+            // Play sound
+            playClickSound();
+        });
+        
+        function renderHistory() {
+            historyTableBody.innerHTML = '';
+            
+            if (gameHistory.length === 0) {
+                historyTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Chưa có lịch sử</td></tr>';
+                return;
+            }
+            
+            gameHistory.slice().reverse().forEach((game, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${gameHistory.length - index}</td>
+                    <td>${game.prediction}</td>
+                    <td>${game.actualResult || 'Chưa cập nhật'}</td>
+                    <td class="${game.isCorrect ? 'correct' : 'incorrect'}">${game.isCorrect ? 'ĐÚNG' : game.isCorrect === false ? 'SAI' : 'CHƯA KIỂM TRA'}</td>
+                    <td>${game.timestamp}</td>
+                `;
+                
+                historyTableBody.appendChild(row);
+            });
+        }
+        
+        // Tool V2 functionality
+        const botMessages = document.getElementById('bot-messages');
+        const userMessage = document.getElementById('user-message');
+        const sendBtn = document.getElementById('send-btn');
+        const botHistoryBtn = document.getElementById('bot-history-btn');
+        const botHistoryModal = document.getElementById('bot-history-modal');
+        const closeBotHistory = document.getElementById('close-bot-history');
+        const botHistoryTableBody = document.getElementById('bot-history-table-body');
+        
+        let botSession = {
+            sessionId: null,
+            currentPhase: null,
+            lastPrediction: null,
+            history: JSON.parse(localStorage.getItem('botHistory')) || []
+        };
+        
+        function addBotMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `<div class="bot-message">${text}</div>`;
+            botMessages.appendChild(messageDiv);
+            botMessages.scrollTop = botMessages.scrollHeight;
+            
+            // Play sound
+            playMessageSound();
+        }
+        
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `<div class="user-message">${text}</div>`;
+            botMessages.appendChild(messageDiv);
+            botMessages.scrollTop = botMessages.scrollHeight;
+            
+            // Play sound
+            playMessageSound();
+        }
+        
+        sendBtn.addEventListener('click', sendMessage);
+        userMessage.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        function sendMessage() {
+            const text = userMessage.value.trim();
+            if (text) {
+                addUserMessage(text);
+                
+                // Process message
+                if (text.startsWith('#')) {
+                    // Session phase
+                    const sessionId = text.substring(1);
+                    if (/^\d+$/.test(sessionId)) {
+                        botSession.sessionId = parseInt(sessionId);
+                        botSession.currentPhase = 'waiting';
+                        
+                        addBotMessage(`Đã nhận điểm phiên #${sessionId}. Bắt đầu phân tích...`);
+                        
+                        // Start prediction cycle
+                        setTimeout(() => {
+                            makePrediction();
+                        }, 2000);
+                    } else {
+                        addBotMessage('Điểm phiên không hợp lệ. Vui lòng nhập số (ví dụ: #828923)');
+                    }
+                } else {
+                    // Other messages
+                    addBotMessage('Vui lòng gửi điểm phiên bắt đầu bằng # để tôi có thể phân tích');
+                }
+                
+                userMessage.value = '';
+            }
+        }
+        
+        function makePrediction() {
+            if (botSession.currentPhase !== 'waiting') return;
+            
+            // Generate prediction (more sophisticated in real app)
+            const isTai = Math.random() > 0.4; // Slightly biased towards Tài
+            const winProb = Math.floor(Math.random() * 21) + 60; // 60-80%
+            
+            // Generate position numbers
+            const positionNumbers = [];
+            const targetSum = isTai ? 
+                Math.floor(Math.random() * 8) + 11 : // Tài: 11-18
+                Math.floor(Math.random() * 8) + 3;   // Xỉu: 3-10
+                
+            // Generate 3 unique numbers that sum to target
+            let num1, num2, num3;
+            do {
+                num1 = isTai ? 
+                    Math.floor(Math.random() * 5) + 4 : // 4-8 for Tài
+                    Math.floor(Math.random() * 3) + 1;  // 1-3 for Xỉu
+                num2 = isTai ? 
+                    Math.floor(Math.random() * 5) + 4 : 
+                    Math.floor(Math.random() * 3) + 1;
+                num3 = targetSum - num1 - num2;
+                
+                // Ensure numbers are valid and unique
+                const validRange = isTai ? 
+                    (n) => n >= 4 && n <= 6 : 
+                    (n) => n >= 1 && n <= 3;
+                
+                if (validRange(num3) && num1 !== num2 && num1 !== num3 && num2 !== num3) {
+                    positionNumbers.push(num1, num2, num3);
+                    break;
+                }
+            } while (true);
+            
+            // Shuffle the numbers
+            positionNumbers.sort(() => Math.random() - 0.5);
+            
+            // Save prediction
+            botSession.lastPrediction = {
+                timestamp: new Date().toLocaleString(),
+                sessionId: botSession.sessionId,
+                prediction: isTai ? 'TÀI' : 'XỈU',
+                position: positionNumbers,
+                winProbability: winProb,
+                actualResult: null,
+                isCorrect: null
+            };
+            
+            // Add to history
+            botSession.history.push(botSession.lastPrediction);
+            localStorage.setItem('botHistory', JSON.stringify(botSession.history));
+            
+            // Show prediction
+            addBotMessage(`Đang tính kết quả...`);
+            
+            setTimeout(() => {
+                addBotMessage(`Kết quả: ${isTai ? '<span class="tai">TÀI</span>' : '<span class="xiu">XỈU</span>'}`);
+                addBotMessage(`Tỉ lệ thắng: ${winProb}%`);
+                addBotMessage(`Dự đoán vị: ${positionNumbers.join(', ')} (Tổng: ${positionNumbers.reduce((a, b) => a + b, 0)})`);
+                addBotMessage(`Tự động cập nhật sau 50 giây...`);
+                
+                // Schedule next prediction
+                setTimeout(() => {
+                    if (botSession.currentPhase === 'waiting') {
+                        botSession.sessionId++;
+                        makePrediction();
+                    }
+                }, 50000);
+            }, 2000);
+        }
+        
+        botHistoryBtn.addEventListener('click', () => {
+            renderBotHistory();
+            botHistoryModal.style.display = 'flex';
+            
+            // Play sound
+            playClickSound();
+        });
+        
+        closeBotHistory.addEventListener('click', () => {
+            botHistoryModal.style.display = 'none';
+            
+            // Play sound
+            playClickSound();
+        });
+        
+        function renderBotHistory() {
+            botHistoryTableBody.innerHTML = '';
+            
+            if (botSession.history.length === 0) {
+                botHistoryTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Chưa có lịch sử</td></tr>';
+                return;
+            }
+            
+            botSession.history.slice().reverse().forEach((record, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${record.timestamp}</td>
+                    <td>#${record.sessionId}</td>
+                    <td>${record.prediction} (${record.position.join(', ')})</td>
+                    <td>${record.actualResult || 'Chưa cập nhật'}</td>
+                    <td class="${record.isCorrect ? 'correct' : 'incorrect'}">${record.isCorrect ? 'ĐÚNG' : record.isCorrect === false ? 'SAI' : 'CHƯA KIỂM TRA'}</td>
+                `;
+                
+                botHistoryTableBody.appendChild(row);
+            });
+        }
+        
+        // Tool V3 functionality
+        const gameOptions = document.querySelectorAll('.game-option');
+        const gameFrame = document.getElementById('game-frame');
+        
+        gameOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                gameOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                
+                const game = option.getAttribute('data-game');
+                let gameUrl = '';
+                
+                switch (game) {
+                    case 'sunwin':
+                        gameUrl = 'https://sun.win/';
+                        break;
+                    case 'hitclub':
+                        gameUrl = 'https://hit.club/';
+                        break;
+                    case '68gb':
+                        gameUrl = 'https://68gbvn25.biz/';
+                        break;
+                }
+                
+                gameFrame.src = gameUrl;
+                gameFrame.classList.add('active');
+                
+                // Play sound
+                playClickSound();
+            });
+        });
+        
+        // Initialize first game
+        gameOptions[0].click();
+        
+        // Sound functions
+        function playClickSound() {
+            const clickSound = new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3');
+            clickSound.volume = 0.3;
+            clickSound.play().catch(e => console.log('Audio play failed:', e));
+        }
+        
+        function playMessageSound() {
+            const messageSound = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
+            messageSound.volume = 0.2;
+            messageSound.play().catch(e => console.log('Audio play failed:', e));
+        }
+        
+        // Initialize
+        renderHistory();
+        renderBotHistory();
+    </script>
+</body>
+</html>
